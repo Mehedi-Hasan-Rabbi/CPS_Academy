@@ -5,6 +5,7 @@ import { useState } from "react";
 import { loginUser } from "../../lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../auth-context";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState(""); // Can be email or username
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,6 +22,7 @@ export default function LoginPage() {
 
     try {
       const user = await loginUser(identifier, password);
+      login(user);
       console.log("User logged in:", user);
       router.push("/"); // Redirect to homepage after successful login
     } catch (err) {

@@ -1,4 +1,5 @@
 // src/app/page.js
+import Link from 'next/link';
 import { fetchAPI } from '../lib/api';
 
 export default async function HomePage() {
@@ -76,9 +77,12 @@ export default async function HomePage() {
                 <p className="text-gray-700 mb-4 line-clamp-3">Become a CPS Academy Student to view modules</p>
               </div>
 
-              <button className="mt-6 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
-                View Course Details (Public)
-              </button>
+              <Link
+                href={`/course/${course.documentId}`} // Use a dynamic link
+                className="inline-block mt-6 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+              >
+                View Course Details
+            </Link>
             </div>
           ))
         ) : (

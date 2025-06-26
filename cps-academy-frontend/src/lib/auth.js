@@ -28,7 +28,7 @@ export const unsetToken = () => {
 // Function to register a user
 export const registerUser = async (username, email, password) => {
   try {
-    const data = await fetchAPI("/auth/local/register", {
+    const res = await fetch("http://localhost:1337/api/auth/local/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,28 +36,41 @@ export const registerUser = async (username, email, password) => {
       body: JSON.stringify({ username, email, password }),
     });
 
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData?.error?.message || "Registration failed");
+    }
+
+    const data = await res.json();
     if (data.jwt && data.user) {
       setToken(data);
-      return data.user; // Return user object on success
+      return data.user;
     } else {
-      throw new Error("Registration failed: Invalid response from server.");
+      throw new Error("Registration failed: Invalid response.");
     }
   } catch (error) {
     console.error("Registration error:", error.message);
-    throw error; // Re-throw to be caught by the component
+    throw error;
   }
 };
 
 // Function to log in a user
 export const loginUser = async (identifier, password) => {
   try {
-    const data = await fetchAPI("/auth/local", {
+    const res = await fetch("http://localhost:1337/api/auth/local", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ identifier, password }),
     });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData?.error?.message || "Login failed");
+    }
+
+    const data = await res.json();
 
     if (data.jwt && data.user) {
       setToken(data);
@@ -70,6 +83,7 @@ export const loginUser = async (identifier, password) => {
     throw error; // Re-throw to be caught by the component
   }
 };
+
 
 // Function to get current user from cookie
 export const getUserFromCookie = () => {

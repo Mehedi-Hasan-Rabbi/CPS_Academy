@@ -5,6 +5,7 @@ import { useState } from "react";
 import { registerUser } from "../../lib/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // For client-side navigation
+import { useAuth } from "../auth-context"; // Custom hook to access auth context
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -13,6 +14,7 @@ export default function RegisterPage() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth(); // Access the login function from auth context
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +23,7 @@ export default function RegisterPage() {
 
     try {
       const user = await registerUser(username, email, password);
+      login(user); // Log the user in after successful registration
       console.log("User registered:", user);
       router.push("/"); // Redirect to homepage after successful registration
     } catch (err) {
