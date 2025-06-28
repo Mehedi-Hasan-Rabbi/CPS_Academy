@@ -101,3 +101,49 @@ export const getTokenFromCookie = () => {
   }
   return null;
 };
+
+export const forgotPasswordRequest = async (email) => {
+  try {
+    const res = await fetch("http://localhost:1337/api/auth/forgot-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData?.error?.message || "Failed to send reset email.");
+    }
+
+    return true; // Return true on success
+  } catch (error) {
+    console.error("Forgot password request error:", error.message);
+    throw error;
+  }
+};
+
+// Function to reset the password using a token
+export const resetPassword = async (code, password, passwordConfirmation) => {
+  try {
+    const res = await fetch("http://localhost:1337/api/auth/reset-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code, password, passwordConfirmation }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData?.error?.message || "Failed to reset password.");
+    }
+
+    const data = await res.json();
+    return data; // Returns user and JWT on success
+  } catch (error) {
+    console.error("Reset password error:", error.message);
+    throw error;
+  }
+};

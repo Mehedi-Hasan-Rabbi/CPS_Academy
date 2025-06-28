@@ -76,9 +76,14 @@ export default function LoginPage() {
           </div>
         </form>
         <p className="text-center text-gray-600 text-sm mt-4">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Register
+          Don't have an account?{" "}
+          <Link href="/register" className="text-blue-600 hover:underline">
+            Register
+          </Link>
+        </p>
+        <p className="text-center text-gray-600 text-sm mt-2">
+          <Link href="/forgot-password" className="text-blue-600 hover:underline">
+            Forgot Password?
           </Link>
         </p>
         {/* Password recovery/reset not implemented yet but can be added here */}
