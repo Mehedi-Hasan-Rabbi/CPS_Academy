@@ -10,11 +10,11 @@ export default async function HomePage() {
     const courseData = await fetchAPI('/courses', { populate: '*' });
     courses = courseData.data; // Directly access course fields
 
-    console.log("Raw course data:", courses.map(course => ({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-    })));
+    // console.log("Raw course data:", courses.map(course => ({
+    //   id: course.id,
+    //   title: course.title,
+    //   description: course.description,
+    // })));
 
   } catch (e) {
     console.error(e);
@@ -64,7 +64,7 @@ export default async function HomePage() {
               </p>
 
               <div className="mt-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Modules:</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Modules: Click on View Course Details</h3>
                 {/* {course.modules?.length > 0 ? (
                   <ul className="list-disc list-inside text-gray-600">
                     {course.modules.map((module) => (
@@ -72,9 +72,9 @@ export default async function HomePage() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-gray-500">No modules available for this course yet.</p>
+                  <p className="text-gray-500">Become a CPS Academy Student to view modules</p>
                 )} */}
-                <p className="text-gray-700 mb-4 line-clamp-3">Become a CPS Academy Student to view modules</p>
+                {/* <p className="text-gray-700 mb-4 line-clamp-3">Become a CPS Academy Student to view modules</p> */}
               </div>
 
               <Link
