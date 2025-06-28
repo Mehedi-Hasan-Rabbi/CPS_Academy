@@ -9,7 +9,7 @@ export const setToken = (data) => {
   if (typeof window !== "undefined") {
     Cookies.set("token", data.jwt);
     Cookies.set("user", JSON.stringify(data.user)); // Store user object as a string
-
+    
     // Optional: Redirect to dashboard or homepage after successful login/registration
     // window.location.replace("/");
   }
