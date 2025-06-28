@@ -1,109 +1,145 @@
 // src/app/course/[slug]/CourseDetailsContent.jsx
-"use client"; // This is a Client Component
+"use client";
 
-import React from 'react';
-
-const renderRichText = (blocks) => {
-  if (!blocks || !Array.isArray(blocks)) {
-    // If blocks is not an array (e.g., a simple string or undefined), return it as is.
-    return blocks;
-  }
-
-  return blocks.map((block, index) => {
-    // Each block has a 'type' (e.g., 'paragraph', 'list', 'heading')
-    // We can render different HTML elements based on the block type.
-    const children = block.children?.map((child, childIndex) => {
-      // Each child can have a 'text' property and formatting (bold, italic, etc.)
-      let textContent = child.text;
-      
-      if (child.format) {
-        // Apply text formatting if it exists
-        if (child.format.bold) {
-          textContent = <strong key={`bold-${childIndex}`}>{textContent}</strong>;
-        }
-        if (child.format.italic) {
-          textContent = <em key={`italic-${childIndex}`}>{textContent}</em>;
-        }
-        // Add more formatting checks here if needed (e.g., underline, strikethrough)
-      }
-      
-      return <React.Fragment key={childIndex}>{textContent}</React.Fragment>;
-    });
-
-    switch (block.type) {
-      case 'paragraph':
-        return <p key={index}>{children}</p>;
-      case 'list':
-        // Check if it's an ordered or unordered list
-        if (block.format === 'ordered') {
-          return <ol key={index}>{children}</ol>;
-        } else {
-          return <ul key={index}>{children}</ul>;
-        }
-      case 'list-item':
-        return <li key={index}>{children}</li>;
-      // You can add more cases for other block types (e.g., 'heading', 'image')
-      default:
-        // For unknown block types, just render the children in a span
-        return <span key={index}>{children}</span>;
-    }
-  });
-};
+import { BlocksRenderer } from '@strapi/blocks-react-renderer';
+import Link from 'next/link';
+import { HiBookOpen, HiLockClosed, HiAcademicCap, HiOutlineCalendar, HiArrowRight } from 'react-icons/hi';
 
 export default function CourseDetailsContent({ course, user }) {
-  // Determine the user's role.
-  // Strapi's user object has a `role` property which is an object.
-  // The role name is under `role.name`.
-  const userRole = user?.role?.name || 'Public'; // Default to 'Public' if no user or role
+    if (!course) {
+        return (
+            <div className="max-w-4xl mx-auto py-12 px-4 text-center">
+                <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-1/2 mx-auto mb-6"></div>
+                    <div className="space-y-4">
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                        <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto"></div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
-  // Conditionally render content based on the user's role
-  const isStudentOrAbove = userRole === 'Student' || userRole === 'Social Media Manager / Developer';
-  const isSocialMediaManager = userRole === 'Social Media Manager / Developer';
+    const { title, description, modules } = course;
+    const userRole = user?.role?.name || 'Public';
+    const isStudentOrAbove = userRole === 'Student' || userRole === 'Social Media Manager / Developer';
 
-  return (
-    <div className="bg-white p-8 rounded-lg shadow-md">
-      <h1 className="text-4xl font-extrabold text-blue-800 mb-4">{course.title}</h1>
-      {/* Updated to use the new renderer */}
-      <div className="text-gray-600 mb-8">
-        {renderRichText(course.description)}
-      </div>
-      
-      {/* Public/Normal User View: Limited Summary */}
-      {/* ... your conditional rendering logic is fine ... */}
-      
-      {/* Student/Social Media Manager/Developer View: Full Details */}
-      {isStudentOrAbove && (
-        <div className="border-t pt-6 mt-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Full Course Details</h2>
-          <div className="prose max-w-none">
-            {/* Use the new renderer for description */}
-            <div>{renderRichText(course.description)}</div>
-          </div>
+    const renderModules = () => {
+        if (!modules || modules.length === 0) {
+            return (
+                <div className="bg-blue-50 rounded-xl p-6 text-center border border-blue-200 flex flex-col items-center">
+                    <HiBookOpen className="text-3xl text-blue-600 mb-3" />
+                    <p className="text-gray-600">No modules available for this course yet.</p>
+                </div>
+            );
+        }
+        
+        return (
+            <div className="space-y-4">
+                {modules.map((module) => (
+                    <div 
+                        key={module.id} 
+                        className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-sm transition-shadow"
+                    >
+                        <div className="flex items-start">
+                            <div className="mr-4 mt-1">
+                                <div className="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center">
+                                    <HiBookOpen className="text-blue-600" />
+                                </div>
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex flex-wrap justify-between items-start gap-2 mb-3">
+                                    <h3 className="text-lg font-semibold text-gray-900">{module.name}</h3>
+                                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center">
+                                        <HiOutlineCalendar className="mr-1.5" />
+                                        {module.numberOfClasses} classes
+                                    </span>
+                                </div>
+                                                               
+                                <div className="mt-4">
+                                    <h4 className="text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                        <span className="bg-gray-200 w-5 h-5 rounded-full inline-flex items-center justify-center mr-2">D</span>
+                                        Details
+                                    </h4>
+                                    <div className="text-gray-700 ml-7">
+                                        <BlocksRenderer content={module.details} />
+                                    </div>
+                                </div>
 
-          <div className="mt-8">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Modules</h3>
-            {course.modules?.length > 0 ? (
-              <ul className="space-y-4">
-                {course.modules.map((module) => (
-                  <li key={module.id} className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
-                    <h4 className="text-lg font-semibold text-gray-900">{module.name}</h4>
-                    <p className="text-gray-600">
-                      <strong>Classes:</strong> {module.numberOfClasses}
-                    </p>
-                    <p className="text-gray-600">
-                      <strong>Topics:</strong> {renderRichText(module.topicsCovered)}
-                    </p>
-                    <p className="text-gray-600 mt-2">{renderRichText(module.details)}</p>
-                  </li>
+                                <div className="mt-3">
+                                    <h4 className="text-sm font-medium text-gray-700 mb-1 flex items-center">
+                                        <span className="bg-gray-200 w-5 h-5 rounded-full inline-flex items-center justify-center mr-2">T</span>
+                                        Topics Covered
+                                    </h4>
+                                    <div className="text-gray-700 ml-7">
+                                        <BlocksRenderer content={module.topicsCovered} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 ))}
-              </ul>
+            </div>
+        );
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-sm p-6">
+            <div className="mb-8 pb-6 border-b border-gray-200">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center">
+                    <HiAcademicCap className="text-blue-600 mr-3 text-2xl" />
+                    {title}
+                </h1>
+                <div className="text-gray-700">
+                    <BlocksRenderer content={description} />
+                </div>
+            </div>
+
+            {isStudentOrAbove ? (
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold text-gray-900 mb-5 flex items-center">
+                        <HiBookOpen className="text-blue-600 mr-2" />
+                        Course Modules
+                    </h2>
+                    {renderModules()}
+                </div>
             ) : (
-              <p className="text-gray-500">No modules available for this course yet.</p>
+                <div className="bg-blue-50 rounded-lg p-6 border border-blue-200 text-center">
+                    <div className="flex flex-col items-center">
+                        <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                            <HiLockClosed className="text-2xl text-blue-700" />
+                        </div>
+                        
+                        {user ? (
+                            <>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                    You must be a student to view the full course modules.
+                                </h3>
+                                <Link 
+                                    href="/contact" 
+                                    className="mt-4 inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg transition-colors"
+                                >
+                                    Contect with Admin to Enroll
+                                    <HiArrowRight className="ml-2" />
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                    Login to view enrollment options for this course.
+                                </h3>
+                                <Link 
+                                    href="/login" 
+                                    className="mt-4 inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg transition-colors"
+                                >
+                                    Login to Enroll
+                                    <HiArrowRight className="ml-2" />
+                                </Link>
+                            </>
+                        )}
+                    </div>
+                </div>
             )}
-          </div>
         </div>
-      )}
-      {/* ... rest of the component */}
-    </div>
-  );
+    );
 }
